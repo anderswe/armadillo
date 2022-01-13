@@ -1,3 +1,6 @@
+[![DOI](https://zenodo.org/badge/272919006.svg)](https://zenodo.org/badge/latestdoi/272919006)
+
+
 # Armadillo
 
 Mutations in repetitive regions are usually lost by standard variant callers as low mapping quality leads to non-reliable variant calls. We introduce Armadillo, a pipeline that stacks all copies from repetitive genes to make mutations in such regions visible. 
