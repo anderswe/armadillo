@@ -1,5 +1,4 @@
-[![DOI](https://zenodo.org/badge/272919006.svg)](https://zenodo.org/badge/latestdoi/272919006)
-
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5846705.svg)](https://doi.org/10.5281/zenodo.5846705)
 
 # Armadillo
 
