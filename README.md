@@ -1,3 +1,4 @@
+[![DOI](https://img.shields.io/badge/DOI-10.1038%2Fs41525--022--00292--2-green)](https://doi.org/10.1038/s41525-022-00292-2)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5846705.svg)](https://doi.org/10.5281/zenodo.5846705)
 
 # Armadillo
@@ -80,3 +81,7 @@ The program will print multiple files:
 * **Pablo Bousquets Muñoz** - bousquetspablo@uniovi.es
 * **Ander Díaz Navarro**
 * **Xose Antón Suárez Puente**
+
+## Citation
+
+Bousquets-Muñoz, P., Díaz-Navarro, A., Nadeu, F. et al. PanCancer analysis of somatic mutations in repetitive regions reveals recurrent mutations in snRNA U2. npj Genom. Med. 7, 19 (2022). https://doi.org/10.1038/s41525-022-00292-2
