@@ -30,6 +30,9 @@ def parse_args():
 	parser.add_argument(
 	'-p', '--port', type = str, required = True,
 	help = 'Port where gfServer was loaded')
+	parser.add_argument(
+	'-b', '--bit_dir', type = str, required = True,
+	help = 'Directory where .2bit genome reference is stored.')
 	return parser.parse_args()
 
 def blat_parser(blat, filename):
@@ -94,6 +97,7 @@ for line in rois:
 		continue
 
 	col = line.strip().split()
+	print(col) # sanity check
 
 	if len(col)==1:
 		col = line.replace(":", "\t").replace("-", "\t").strip().split() #convert chr:st-end format to BED
@@ -111,31 +115,46 @@ for line in rois:
 	if "miniFASTA/"+coord+".fa" not in os.listdir("miniFASTA"): #Do not analyse those that already exist
 		orig_coord = str(chrom) + ":" + str(start) + "-" + str(end)
 		blat_input = ">"+orig_coord + "\n" + href[chrom][int(start)-1:int(end)].seq #Get the sequence of the region to run blat. We substract 1 because 0 is the start reference for pyfasta
-		blat_command = ['gfClient', '-out=blast8','localhost', args.port , '', 'stdin', 'stdout']
-		blat_result = check_output(blat_command, input=blat_input.encode()).decode().strip().split("\n")
-		if len(blat_result) > 1:
-			print_fasta = blat_parser(blat_result, orig_coord)
-			if print_fasta:
-				miniFASTA = open("miniFASTA/" + orig_coord + ".fa", "w+") #Create a FASTA for each region
-				miniFASTA.write(">" + coord + "\n" + href[chrom][int(start)-101:int(end)+100].seq+"\n") #We'll align the reads against a quite larger region so that the ones that overlap only in the flanks can align too
-				miniFASTA.close()
+		# blat_command = ['gfClient', '-out=blast8','localhost', args.port , args.bit_dir, 'stdin', 'stdout']
+		# blat_result = check_output(blat_command, input=blat_input.encode()).decode().strip().split("\n")
+		# if len(blat_result) > 1:
+		# 	print_fasta = blat_parser(blat_result, orig_coord)
+		# 	if print_fasta:
+		# 		miniFASTA = open("miniFASTA/" + orig_coord + ".fa", "w+") #Create a FASTA for each region
+		# 		miniFASTA.write(">" + coord + "\n" + href[chrom][int(start)-101:int(end)+100].seq+"\n") #We'll align the reads against a quite larger region so that the ones that overlap only in the flanks can align too
+		# 		miniFASTA.close()
+		# Anders edit April 10, 2024
+		# I'm skipping the blat_parser() filter step because none of the tbc1d3 paralogs are surviving the filter
+		# i.e. I imagine this blat search-and-filter process works really well for shorter repeats like U1 and U2
+		# but big paralogs like TBC1D3 probably not surviving...and I still need to make a fasta reference...  
+		miniFASTA = open("miniFASTA/" + orig_coord + "_" + col[3] + ".fa", "w+") #Create a FASTA for each region
+		miniFASTA.write(">" + coord + "\n" + href[chrom][int(start)-101:int(end)+100].seq+"\n") #We'll align the reads against a quite larger region so that the ones that overlap only in the flanks can align too
+		miniFASTA.close()
+
+		# write logs with coords
+		log=open("rois_copies_coords/"+orig_coord, "a+") #We'll have a log file where we'll append any useful coordinate, so we don't use it twice
+		if int(col[1])<int(col[2]): #We consider the start as the shortest coord, so if the it's in the negative strand, flip the coords
+			log.write(col[0]+":"+col[1]+"-"+col[2]+"\n")
 		else:
-			pass
+			log.write(col[0]+":"+col[2]+"-"+col[1]+"\n")
+		log.close()
+
+			# else:
+			# 	pass
 	else:
 		continue
-
 ## Remove duplicates
-files = [file for file in os.listdir("rois_copies_coords")]
-for file in files:
-	for line in open("rois_copies_coords/"+file):
-		line = line.strip()
-		if line != file and line in files and file in files:
-			os.remove("rois_copies_coords/"+line)
-			os.remove("miniFASTA/"+line+".fa")
-			files.remove(line)
-			print("Removed ", line, ". Duplicate of: ", file, sep = "", end = "\n")
-		else:
-			continue
+# files = [file for file in os.listdir("rois_copies_coords")]
+# for file in files:
+# 	for line in open("rois_copies_coords/"+file):
+# 		line = line.strip()
+# 		if line != file and line in files and file in files:
+# 			os.remove("rois_copies_coords/"+line)
+# 			os.remove("miniFASTA/"+line+".fa")
+# 			files.remove(line)
+# 			print("Removed ", line, ". Duplicate of: ", file, sep = "", end = "\n")
+# 		else:
+# 			continue
 
 ## Index the fasta files ##
 fastas = [file for file in os.listdir("miniFASTA") if file.endswith(".fa")]
